@@ -492,6 +492,8 @@ function displayResults(videos) {
     videoElement.src = videoUrl;
     videoElement.muted = true;
     videoElement.controls = true;
+    videoElement.playsinline = true;
+    videoElement.setAttribute('webkit-playsinline', 'true');
     videoElement.classList.add("result-video");
     videoElement.setAttribute('poster', 'assets/images/thumbnail.jpg');
     
