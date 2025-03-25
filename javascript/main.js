@@ -304,95 +304,6 @@ function tryFetch(url, method = 'GET') {
   });
 }
 
-// Função para obter dados mockados baseados na consulta
-function getMockDataForQuery(query) {
-  query = query.toLowerCase();
-  
-  // Lista de palavras-chave para categorizar as consultas
-  const catKeywords = ['gato', 'gatos', 'felino', 'felinos', 'cat', 'cats'];
-  const foodKeywords = ['comida', 'alimento', 'culinária', 'receita', 'food', 'recipe'];
-  const travelKeywords = ['viagem', 'viajar', 'turismo', 'travel', 'tourist'];
-  
-  let category = 'geral';
-  
-  // Determinar a categoria com base nas palavras-chave
-  if (catKeywords.some(keyword => query.includes(keyword))) {
-    category = 'gatos';
-  } else if (foodKeywords.some(keyword => query.includes(keyword))) {
-    category = 'comida';
-  } else if (travelKeywords.some(keyword => query.includes(keyword))) {
-    category = 'viagem';
-  }
-  
-  // Dados mockados por categoria
-  const mockDataMap = {
-    'gatos': [
-      {
-        videoTitle: "Gato brincando com bola de lã",
-        videoUrl: "assets/videos/video1.mp4",
-        mainCategory: "Animais de Estimação",
-        tags: "gato, brincadeira, diversão, animal"
-      },
-      {
-        videoTitle: "Gato dormindo ao sol",
-        videoUrl: "assets/videos/video2.mp4",
-        mainCategory: "Animais de Estimação",
-        tags: "gato, sono, relaxamento, fofo"
-      },
-      {
-        videoTitle: "Gatinhos recém-nascidos",
-        videoUrl: "assets/videos/video3.mp4",
-        mainCategory: "Animais de Estimação",
-        tags: "gato, filhotes, fofura, família"
-      }
-    ],
-    'comida': [
-      {
-        videoTitle: "Receita de bolo de chocolate",
-        videoUrl: "assets/videos/video2.mp4",
-        mainCategory: "Culinária",
-        tags: "receita, doce, sobremesa, chocolate"
-      },
-      {
-        videoTitle: "Prato de massa italiana",
-        videoUrl: "assets/videos/video3.mp4",
-        mainCategory: "Culinária",
-        tags: "massa, italiano, jantar, gastronomia"
-      }
-    ],
-    'viagem': [
-      {
-        videoTitle: "Passeio pela praia",
-        videoUrl: "assets/videos/video1.mp4",
-        mainCategory: "Turismo",
-        tags: "praia, férias, verão, relaxamento"
-      },
-      {
-        videoTitle: "Visita a museu histórico",
-        videoUrl: "assets/videos/video3.mp4",
-        mainCategory: "Turismo",
-        tags: "museu, cultura, história, arte"
-      }
-    ],
-    'geral': [
-      {
-        videoTitle: "Vídeo relacionado a: " + query,
-        videoUrl: "assets/videos/video1.mp4",
-        mainCategory: "Diversos",
-        tags: query + ", pesquisa, resultado"
-      },
-      {
-        videoTitle: "Conteúdo sobre: " + query,
-        videoUrl: "assets/videos/video2.mp4",
-        mainCategory: "Diversos",
-        tags: "informação, conhecimento, " + query
-      }
-    ]
-  };
-  
-  return mockDataMap[category];
-}
-
 // Função para tratar erros de busca
 function handleSearchError(error) {
   console.error('Erro ao buscar vídeos:', error);
@@ -454,118 +365,158 @@ function handleSearchError(error) {
   }, 3000);
 }
 
-// Função para exibir os resultados na tela
-function displayResults(data) {
-  // Obter o idioma atual
-  const currentLang = localStorage.getItem('language') || 'pt-BR';
-  const isEnglish = currentLang === 'en';
+// Função para obter dados mockados baseados na consulta
+function getMockDataForQuery(query) {
+  query = query.toLowerCase();
   
-  // Esconde o loading
-  document.getElementById("loadingArea").style.display = "none";
+  // Lista de palavras-chave para categorizar as consultas
+  const catKeywords = ['gato', 'gatos', 'felino', 'felinos', 'cat', 'cats'];
+  const foodKeywords = ['comida', 'alimento', 'culinária', 'receita', 'food', 'recipe'];
+  const travelKeywords = ['viagem', 'viajar', 'turismo', 'travel', 'tourist'];
   
-  // Mostra a área de resultados
-  document.getElementById("resultArea").style.display = "block";
+  let category = 'geral';
   
-  // Limpa os resultados anteriores
-  const videoGrid = document.getElementById("videoGrid");
-  videoGrid.innerHTML = "";
-  
-  try {
-    // Verificar se temos dados válidos
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      videoGrid.innerHTML = `
-        <div class="no-results">
-          <p>${translations[currentLang].noResults}</p>
-        </div>
-      `;
-      return;
-    }
-    
-    // Adiciona cada vídeo à grid
-    data.forEach(video => {
-      const card = document.createElement("div");
-      card.className = "video-card";
-      
-      // Título do vídeo
-      const title = video.videoTitle || "Vídeo sem título";
-      
-      // URL do vídeo
-      const videoUrl = video.videoUrl || "";
-      
-      // Criar o elemento para o vídeo
-      const link = document.createElement("a");
-      link.href = videoUrl;
-      link.target = "_blank";
-      link.className = "video-link";
-      
-      // Criar o elemento de vídeo
-      const videoElement = document.createElement("video");
-      videoElement.src = videoUrl;
-      videoElement.muted = true;
-      videoElement.controls = true;
-      videoElement.classList.add("result-video");
-      videoElement.setAttribute('poster', 'assets/images/thumbnail.jpg');
-      
-      // Título do vídeo
-      const titleElement = document.createElement("h3");
-      titleElement.textContent = title;
-      titleElement.className = "video-title";
-      titleElement.setAttribute('title', title);
-      
-      // Adicionar informações de categoria, se disponíveis
-      const infoElement = document.createElement("p");
-      infoElement.className = "video-info";
-      const categoryText = video.mainCategory ? video.mainCategory.join(", ") : "";
-      infoElement.textContent = categoryText;
-      infoElement.setAttribute('title', categoryText);
-      
-      // Adiciona evento para reproduzir o vídeo ao passar o mouse
-      videoElement.addEventListener('mouseenter', () => {
-        videoElement.play();
-      });
-      
-      // Pausa o vídeo quando o mouse sai
-      videoElement.addEventListener('mouseleave', () => {
-        videoElement.pause();
-      });
-      
-      // Adicionar vídeo, título e info ao link
-      link.appendChild(videoElement);
-      link.appendChild(titleElement);
-      link.appendChild(infoElement);
-      
-      // Adicionar o link ao card
-      card.appendChild(link);
-      
-      // Adicionar tags, se existirem
-      if (video.tags && Array.isArray(video.tags)) {
-        const tagsContainer = document.createElement("div");
-        tagsContainer.className = "video-tags";
-        
-        // Criar elementos para cada tag
-        video.tags.forEach(tag => {
-          const tagElement = document.createElement("span");
-          tagElement.className = "tag";
-          tagElement.textContent = tag;
-          tagElement.setAttribute('title', tag);
-          tagsContainer.appendChild(tagElement);
-        });
-        
-        // Adicionar tags ao card
-        card.appendChild(tagsContainer);
-      }
-      
-      videoGrid.appendChild(card);
-    });
-  } catch (err) {
-    console.error("Erro ao processar resultados:", err);
-    console.log("Dados recebidos:", data);
-    videoGrid.innerHTML = `
-      <div class="no-results">
-        <p>${translations[currentLang].noResults}</p>
-      </div>
-    `;
+  // Determinar a categoria com base nas palavras-chave
+  if (catKeywords.some(keyword => query.includes(keyword))) {
+    category = 'gatos';
+  } else if (foodKeywords.some(keyword => query.includes(keyword))) {
+    category = 'comida';
+  } else if (travelKeywords.some(keyword => query.includes(keyword))) {
+    category = 'viagem';
   }
+  
+  // Dados mockados por categoria
+  const mockDataMap = {
+    'gatos': [
+      {
+        videoTitle: "Gato brincando com bola de lã",
+        videoUrl: "assets/videos/video1.mp4",
+        mainCategory: ["Animais de Estimação"],
+        tags: ["gato", "brincadeira", "diversão", "animal"]
+      },
+      {
+        videoTitle: "Gato dormindo ao sol",
+        videoUrl: "assets/videos/video2.mp4",
+        mainCategory: ["Animais de Estimação"],
+        tags: ["gato", "sono", "relaxamento", "fofo"]
+      },
+      {
+        videoTitle: "Gatinhos recém-nascidos",
+        videoUrl: "assets/videos/video3.mp4",
+        mainCategory: ["Animais de Estimação"],
+        tags: ["gato", "filhotes", "fofura", "família"]
+      }
+    ],
+    'comida': [
+      {
+        videoTitle: "Receita de bolo de chocolate",
+        videoUrl: "assets/videos/video2.mp4",
+        mainCategory: ["Culinária"],
+        tags: ["receita", "doce", "sobremesa", "chocolate"]
+      },
+      {
+        videoTitle: "Prato de massa italiana",
+        videoUrl: "assets/videos/video3.mp4",
+        mainCategory: ["Culinária"],
+        tags: ["massa", "italiano", "jantar", "gastronomia"]
+      }
+    ],
+    'viagem': [
+      {
+        videoTitle: "Passeio pela praia",
+        videoUrl: "assets/videos/video1.mp4",
+        mainCategory: ["Turismo"],
+        tags: ["praia", "férias", "verão", "relaxamento"]
+      },
+      {
+        videoTitle: "Visita a museu histórico",
+        videoUrl: "assets/videos/video3.mp4",
+        mainCategory: ["Turismo"],
+        tags: ["museu", "cultura", "história", "arte"]
+      }
+    ],
+    'geral': [
+      {
+        videoTitle: "Vídeo relacionado a: " + query,
+        videoUrl: "assets/videos/video1.mp4",
+        mainCategory: ["Diversos"],
+        tags: [query, "pesquisa", "resultado"]
+      },
+      {
+        videoTitle: "Conteúdo sobre: " + query,
+        videoUrl: "assets/videos/video2.mp4",
+        mainCategory: ["Diversos"],
+        tags: ["informação", "conhecimento", query]
+      }
+    ]
+  };
+  
+  return mockDataMap[category];
+}
+
+// Função para exibir os resultados na tela
+function displayResults(videos) {
+  const videoGrid = document.querySelector('.video-grid');
+  videoGrid.innerHTML = '';
+
+  // Esconder a área de loading
+  document.getElementById("loadingArea").style.display = "none";
+
+  // Se não houver vídeos ou o array estiver vazio
+  if (!videos || videos.length === 0) {
+    const noResults = document.createElement("div");
+    noResults.className = "no-results";
+    noResults.innerHTML = `
+      <p>Nenhum vídeo encontrado para a sua busca</p>
+    `;
+    videoGrid.appendChild(noResults);
+    return;
+  }
+
+  // Se houver vídeos, exibe-os
+  videos.forEach(video => {
+    const card = document.createElement("div");
+    card.className = "video-card";
+    
+    // URL do vídeo
+    const videoUrl = video.videoUrl;
+    
+    // Criar o elemento para o vídeo
+    const link = document.createElement("a");
+    link.href = videoUrl;
+    link.target = "_blank";
+    link.className = "video-link";
+    
+    // Criar o elemento de vídeo
+    const videoElement = document.createElement("video");
+    videoElement.src = videoUrl;
+    videoElement.muted = true;
+    videoElement.controls = true;
+    videoElement.classList.add("result-video");
+    videoElement.setAttribute('poster', 'assets/images/thumbnail.jpg');
+    
+    // Adiciona evento para reproduzir o vídeo ao passar o mouse
+    videoElement.addEventListener('mouseenter', () => {
+      videoElement.play();
+    });
+    
+    // Pausa o vídeo quando o mouse sai
+    videoElement.addEventListener('mouseleave', () => {
+      videoElement.pause();
+    });
+    
+    // Adicionar vídeo ao link
+    link.appendChild(videoElement);
+    
+    // Adicionar o link ao card
+    card.appendChild(link);
+    
+    videoGrid.appendChild(card);
+  });
+
+  // Mostrar a área de resultados e esconder o loading
+  document.querySelector('.result-area').style.display = 'block';
+  document.getElementById("loadingArea").style.display = "none";
 }
 
 // Função para obter um vídeo local aleatoriamente
