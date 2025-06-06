@@ -222,7 +222,7 @@ function startSearch() {
   document.getElementById("loadingArea").style.display = "flex";
   
   // URL da API original
-  const originalApiUrl = `https://search-teste-676835578786.us-central1.run.app/search?q=${encodeURIComponent(searchInput)}`;
+  const originalApiUrl = `https://search-embedding-791901576533.us-central1.run.app/search?q=${encodeURIComponent(searchInput)}`;
   
   // URL com proxy CORS para evitar problemas de CORS
   const corsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(originalApiUrl)}`;
